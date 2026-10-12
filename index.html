@@ -240,22 +240,24 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
   var SPEED = Number(new URLSearchParams(location.search).get("speed")) || 1;
   var STEPS = R.buildSteps();
   var TOTAL = STEPS.reduce(function (a, s) { return a + s.dur; }, 0);
+  var WORK_TOTAL = STEPS.reduce(function (a, s) { return a + (s.t === "work" ? s.dur : 0); }, 0);
+  var DAYS_KEY = "mb-days";
+  var RING_LENGTH = 295.31; // 2π × r=47, matches the ring's stroke-dasharray
 
   // ---------- helpers ----------
   var $ = function (id) { return document.getElementById(id); };
-  function pad(n) { return (n < 10 ? "0" : "") + n; }
-  function fmt(sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ":" + pad(sec % 60); }
+  function fmt(sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ":" + R.pad(sec % 60); }
   function show(id) {
     ["start", "session", "done"].forEach(function (s) { $(s).hidden = s !== id; });
   }
 
   // ---------- week dots ----------
-  function loadDays() { try { return JSON.parse(localStorage.getItem("mb-days") || "[]"); } catch (e) { return []; } }
+  function loadDays() { try { return JSON.parse(localStorage.getItem(DAYS_KEY) || "[]"); } catch (e) { return []; } }
   function markToday() {
     var days = loadDays(), k = R.dayKey(new Date());
     if (days.indexOf(k) < 0) days.push(k);
     days = days.slice(-60);
-    try { localStorage.setItem("mb-days", JSON.stringify(days)); } catch (e) {}
+    try { localStorage.setItem(DAYS_KEY, JSON.stringify(days)); } catch (e) {}
   }
   function renderWeek(el) {
     el.innerHTML = R.weekDays(loadDays(), new Date()).map(function (d) {
@@ -266,7 +268,7 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
   // ---------- sound (synthesised singing bowl) ----------
   var ctx = null, master = null;
   function initAudio() {
-    if (ctx) { if (ctx.state === "suspended") ctx.resume(); return; }
+    if (ctx) { if (ctx.state !== "running") ctx.resume(); return; }
     var AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     ctx = new AC();
@@ -319,11 +321,11 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
     if (video) video.pause();
   }
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible" && running && !paused) wakeOn();
+    if (document.visibilityState === "hidden" && running) setPaused(true);
   });
 
   // ---------- session engine ----------
-  var running = false, paused = false, idx = 0, stepStart = 0, clockBase = 0, pausedAt = 0, pausedTotal = 0, timer = 0;
+  var running = false, paused = false, idx = 0, stepStart = 0, clockBase = 0, pausedAt = 0, pausedTotal = 0, timer = 0, workDone = 0;
   var lastBig = "", lastMeta = "";
   function clock() { return (performance.now() - clockBase - pausedTotal) * SPEED; }
 
@@ -366,7 +368,7 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
     var el = (clock() - stepStart) / 1000;
     if (el >= s.dur) { advance(true); return; }
     var p = el / s.dur, big = "", meta = "";
-    $("ring").style.strokeDashoffset = (295.31 * (1 - p)).toFixed(2);
+    $("ring").style.strokeDashoffset = (RING_LENGTH * (1 - p)).toFixed(2);
 
     if (s.t === "next") {
       big = "Starting in " + Math.ceil(s.dur - el);
@@ -391,10 +393,10 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
     var prev = STEPS[idx];
     idx++;
     var next = STEPS[idx];
-    if (!next) { if (natural) sound.finish(); finish(); return; }
-    if (natural) {
-      if (prev.t === "work" && next.t === "next") sound.bowl(0);
-      else if (prev.t === "work") sound.chime();
+    if (!next) { if (natural) { workDone += prev.dur; sound.finish(); } finish(); return; }
+    if (natural && prev.t === "work") {
+      workDone += prev.dur;
+      if (next.t === "switch") sound.chime(); else sound.bowl(0);
     }
     if (next.t === "work") sound.go();
     stepStart = clock();
@@ -404,7 +406,7 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
   function start() {
     initAudio();
     wakeOn();
-    idx = 0; pausedTotal = 0; paused = false; running = true;
+    idx = 0; pausedTotal = 0; workDone = 0; paused = false; running = true;
     clockBase = performance.now(); stepStart = 0;
     $("pause").hidden = true;
     show("session");
@@ -413,7 +415,8 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
   }
   function stop() { running = false; clearInterval(timer); wakeOff(); }
   function finish() {
-    stop(); markToday();
+    stop();
+    if (workDone >= WORK_TOTAL / 2) markToday();
     renderWeek($("week-done")); show("done");
   }
   function goHome() { stop(); renderStart(); show("start"); }

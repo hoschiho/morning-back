@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { EX, buildSteps } = require("./routine.js");
+const { EX, buildSteps, repState, weekDays, dayKey } = require("./routine.js");
 
 const nameOf = (s) => EX[s.ex].name;
 
@@ -40,7 +40,6 @@ test("whole session lasts 1001 s (about 17 minutes)", () => {
   assert.equal(buildSteps().reduce((a, s) => a + s.dur, 0), 1001);
 });
 
-const { repState } = require("./routine.js");
 const ex = (name) => EX.find((e) => e.name === name);
 
 test("pelvic tilts: rep 1 starts breathing in with the circle at its smallest", () => {
@@ -76,7 +75,6 @@ test("glute bridge holds at the top with the circle staying small", () => {
   assert.deepEqual([s.label, s.scale], ["Hold at the top", 0.62]);
 });
 
-const { weekDays } = require("./routine.js");
 
 test("week shows the last 7 days ending today, with done days marked", () => {
   const today = new Date(2026, 9, 12, 7, 0); // Monday 12 Oct 2026, 07:00
@@ -95,6 +93,5 @@ test("week crosses a month boundary", () => {
 });
 
 test("just after midnight still counts as the new local day", () => {
-  const { dayKey } = require("./routine.js");
   assert.equal(dayKey(new Date(2026, 10, 2, 0, 30)), "2026-11-02");
 });
