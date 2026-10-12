@@ -1,0 +1,7 @@
+{
+  "name": "morning-back",
+  "private": true,
+  "scripts": {
+    "test": "TZ=Europe/Zurich node --test"
+  }
+}

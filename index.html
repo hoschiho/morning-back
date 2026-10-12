@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Morning Back">
+<meta name="theme-color" content="#1d1630">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Morning Back</title>
+<style>
+/* Dawn: deep plum night fading into a peach horizon. One soft glow, cream line art, rounded type. */
+:root {
+  --night: #1d1630;
+  --plum: #2e2140;
+  --dusk: #55344f;
+  --horizon: #8a5560;
+  --peach: #eeb090;
+  --cream: #f6ead8;
+  --cream-2: rgba(246, 234, 216, .62);
+  --cream-3: rgba(246, 234, 216, .32);
+  --cream-4: rgba(246, 234, 216, .12);
+  --font: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--night);
+  background-image:
+    radial-gradient(120% 60% at 50% 115%, rgba(238, 176, 144, .38), transparent 60%),
+    linear-gradient(172deg, var(--night) 0%, var(--plum) 42%, var(--dusk) 78%, var(--horizon) 100%);
+  color: var(--cream);
+  font-family: var(--font);
+  overflow: hidden;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; border-radius: 999px; }
+
+.screen {
+  position: fixed; inset: 0;
+  padding: calc(env(safe-area-inset-top, 0px) + 5vh) calc(env(safe-area-inset-right, 0px) + 6vw) calc(env(safe-area-inset-bottom, 0px) + 4vh) calc(env(safe-area-inset-left, 0px) + 6vw);
+  display: flex; flex-direction: column;
+  transition: opacity .8s ease;
+}
+.screen[hidden] { display: none !important; }
+
+/* ---------- start & done ---------- */
+.center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3.2vh; text-align: center; }
+.sun { width: 84px; height: 42px; }
+.greet { font-size: clamp(40px, 6.4vw, 76px); font-weight: 600; letter-spacing: -.01em; margin: 0; line-height: 1.05; }
+.sub { font-size: clamp(17px, 1.8vw, 22px); color: var(--cream-2); margin: 0; }
+.begin {
+  width: clamp(120px, 13vw, 168px); aspect-ratio: 1; border-radius: 50%;
+  border: 1.5px solid rgba(238, 176, 144, .7);
+  background: radial-gradient(circle, rgba(238, 176, 144, .28), rgba(238, 176, 144, .06) 70%);
+  font-size: clamp(20px, 2vw, 26px); font-weight: 600; letter-spacing: .02em;
+  box-shadow: 0 0 60px rgba(238, 176, 144, .25);
+  animation: pulse 6s ease-in-out infinite;
+  margin-block: 1.5vh;
+}
+@keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(238,176,144,.18); } 50% { transform: scale(1.04); box-shadow: 0 0 80px rgba(238,176,144,.32); } }
+.week { display: flex; gap: 18px; }
+.day { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: var(--cream-3); letter-spacing: .06em; }
+.day i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--cream-3); display: block; transition: background .6s, border-color .6s; }
+.day.on i { background: var(--peach); border-color: var(--peach); }
+.day.today { color: var(--cream-2); }
+.quiet { color: var(--cream-3); font-size: 16px; padding: 10px 18px; }
+
+/* ---------- session ---------- */
+.session-main { flex: 1; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; gap: 5vw; min-height: 0; }
+.stage { position: relative; width: min(66vh, 44vw); aspect-ratio: 1; justify-self: center; }
+.stage > * { position: absolute; inset: 0; width: 100%; height: 100%; }
+.breath {
+  inset: 9%; width: auto; height: auto; border-radius: 50%;
+  background: radial-gradient(circle, rgba(238, 176, 144, .30) 0%, rgba(238, 176, 144, .10) 55%, transparent 72%);
+  transform: scale(.7); will-change: transform; transition: opacity .6s, transform .1s linear;
+}
+.ring-bg { stroke: var(--cream-4); }
+.ring-fg { stroke: var(--peach); transition: stroke-dashoffset .25s linear; }
+.figure { inset: 18%; width: auto; height: auto; transition: opacity .6s; }
+.figure svg { width: 100%; height: 100%; overflow: visible; }
+.figure .b { stroke: var(--cream); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.figure .h { fill: var(--cream); }
+.figure .mat { fill: var(--cream); opacity: .14; }
+.figure .pil { fill: var(--cream); opacity: .22; }
+.figure .m { stroke: var(--peach); stroke-width: 3; fill: none; stroke-linecap: round; opacity: .9; }
+.figure .mh { fill: var(--peach); opacity: .9; }
+.figure-inner { transform-origin: 50% 80%; }
+.working .figure-inner { animation: float 6s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+.resting .figure { opacity: .45; }
+
+.text { display: flex; flex-direction: column; gap: 2.2vh; min-width: 0; max-width: 34em; }
+.eyebrow { font-size: clamp(14px, 1.3vw, 17px); letter-spacing: .14em; text-transform: uppercase; color: var(--peach); opacity: .85; }
+.name { font-size: clamp(34px, 4.2vw, 56px); font-weight: 600; line-height: 1.08; margin: 0; letter-spacing: -.01em; }
+.cue { font-size: clamp(18px, 1.75vw, 23px); line-height: 1.45; color: var(--cream-2); margin: 0; }
+.status { margin-top: 2vh; display: flex; flex-direction: column; gap: 1vh; }
+.big { font-size: clamp(28px, 3.2vw, 42px); font-weight: 500; line-height: 1.15; min-height: 2.3em; font-variant-numeric: tabular-nums; }
+.meta { font-size: clamp(16px, 1.5vw, 19px); color: var(--cream-2); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+
+.foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 2vh; }
+.dots { display: flex; gap: 10px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--cream-4); display: block; transition: background .4s, transform .4s; }
+.dots i.done { background: var(--cream-3); }
+.dots i.now { background: var(--peach); transform: scale(1.35); }
+.hint { color: var(--cream-3); font-size: 14px; letter-spacing: .04em; }
+.skip { color: var(--cream-2); font-size: 17px; padding: 12px 6px 12px 20px; }
+
+.pause {
+  position: fixed; inset: 0; z-index: 5;
+  background: rgba(20, 15, 34, .72);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; text-align: center;
+}
+.pause[hidden] { display: none !important; }
+.pause h2 { margin: 0; font-size: clamp(36px, 4.6vw, 58px); font-weight: 600; }
+.pause .end { margin-top: 4vh; border: 1.5px solid var(--cream-3); border-radius: 999px; padding: 12px 28px; color: var(--cream-2); font-size: 17px; }
+
+@media (max-aspect-ratio: 1/1) {
+  .session-main { grid-template-columns: minmax(0, 1fr); align-content: center; gap: 4vh; }
+  .stage { width: min(44vh, 80vw); }
+  .text { text-align: center; align-items: center; justify-self: center; }
+  .hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .begin, .working .figure-inner { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<section class="screen" id="start">
+  <div class="center">
+    <svg class="sun" viewBox="0 0 84 42" aria-hidden="true">
+      <path d="M8 40 A34 34 0 0 1 76 40" fill="none" stroke="#eeb090" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M22 40 A20 20 0 0 1 62 40" fill="rgba(238,176,144,.35)"/>
+      <line x1="2" y1="40.5" x2="82" y2="40.5" stroke="rgba(246,234,216,.35)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <h1 class="greet" id="greet">Good morning</h1>
+    <p class="sub" id="summary">8 exercises</p>
+    <button class="begin" id="begin" type="button">Begin</button>
+    <div class="week" id="week-start"></div>
+  </div>
+</section>
+
+<section class="screen" id="session" hidden>
+  <div class="session-main">
+    <div class="stage" id="stage">
+      <div class="breath" id="breath"></div>
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="ring-bg" cx="50" cy="50" r="47" fill="none" stroke-width="1"/>
+        <circle class="ring-fg" id="ring" cx="50" cy="50" r="47" fill="none" stroke-width="1.6" stroke-linecap="round"
+                transform="rotate(-90 50 50)" stroke-dasharray="295.31" stroke-dashoffset="295.31"/>
+      </svg>
+      <div class="figure"><svg viewBox="0 0 200 110" id="figure"><g class="figure-inner" id="figure-inner"></g></svg></div>
+    </div>
+    <div class="text">
+      <div class="eyebrow" id="eyebrow"></div>
+      <h2 class="name" id="name"></h2>
+      <p class="cue" id="cue"></p>
+      <div class="status">
+        <div class="big" id="big"></div>
+        <div class="meta" id="meta"></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="dots" id="dots"></div>
+    <div class="hint">Tap anywhere to pause</div>
+    <button class="skip" id="skip" type="button">Skip ›</button>
+  </div>
+  <div class="pause" id="pause" hidden>
+    <h2>Paused</h2>
+    <p class="sub">Tap anywhere to continue</p>
+    <button class="end" id="end" type="button">End session</button>
+  </div>
+</section>
+
+<section class="screen" id="done" hidden>
+  <div class="center">
+    <svg class="sun" viewBox="0 0 84 42" aria-hidden="true">
+      <path d="M8 40 A34 34 0 0 1 76 40" fill="none" stroke="#eeb090" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M22 40 A20 20 0 0 1 62 40" fill="rgba(238,176,144,.6)"/>
+      <line x1="2" y1="40.5" x2="82" y2="40.5" stroke="rgba(246,234,216,.35)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <h1 class="greet">Well done</h1>
+    <p class="sub">Your back will thank you. Tonight: a pillow under your knees.</p>
+    <div class="week" id="week-done" style="margin-top:2vh"></div>
+    <button class="quiet" id="home" type="button">Close</button>
+  </div>
+</section>
+
+<script src="routine.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---------- figures (viewBox 0 0 200 110, mat at y≈90) ----------
+  var MAT = '<rect class="mat" x="8" y="89" width="184" height="6" rx="3"/>';
+  var FIG = {
+    knees: MAT + '<rect class="pil" x="14" y="79" width="34" height="10" rx="5"/>' +
+      '<circle class="h" cx="34" cy="72" r="9"/>' +
+      '<path class="b" d="M46 80 Q78 84 108 83"/><path class="b" d="M108 83 L94 52 L122 44"/><path class="b" d="M60 81 L92 56"/>',
+    tilt: MAT + '<rect class="pil" x="12" y="79" width="32" height="10" rx="5"/>' +
+      '<circle class="h" cx="30" cy="72" r="9"/>' +
+      '<path class="b" d="M42 80 Q76 85 110 83 L136 55 L156 87"/><path class="b" d="M58 81 L96 86"/>' +
+      '<path class="m" d="M78 58 v14"/><path class="mh" d="M72 70 h12 l-6 9z"/>',
+    drops: MAT + '<rect class="pil" x="12" y="79" width="32" height="10" rx="5"/>' +
+      '<circle class="h" cx="30" cy="72" r="9"/>' +
+      '<path class="b" d="M42 80 Q76 85 110 83 L142 62 L160 87"/><path class="b" d="M58 81 L96 86"/>' +
+      '<path class="m" d="M126 38 q22 -8 34 12"/><path class="mh" d="M156 52 l10 2 l-4 -11z"/>' +
+      '<path class="m" d="M126 38 q-14 4 -18 18"/><path class="mh" d="M102 54 l6 10 l6 -8z"/>',
+    hipflexor: MAT + '<rect class="pil" x="70" y="82" width="24" height="7" rx="3.5"/>' +
+      '<circle class="h" cx="96" cy="14" r="9"/>' +
+      '<path class="b" d="M96 26 Q99 42 98 56"/><path class="b" d="M98 56 L80 84 L50 86"/>' +
+      '<path class="b" d="M98 56 L134 58 L136 86 L148 86"/><path class="b" d="M96 33 L89 47 L98 54"/>' +
+      '<path class="m" d="M72 50 q4 -10 12 -14"/><path class="mh" d="M82 32 l8 2 l-6 7z"/>',
+    bridge: MAT + '<circle class="h" cx="28" cy="79" r="8"/>' +
+      '<path class="b" d="M40 85 Q70 66 100 57 L130 46 L140 87"/><path class="b" d="M46 86 L90 87"/>' +
+      '<path class="m" d="M100 76 v-12"/><path class="mh" d="M94 66 h12 l-6 -9z"/>',
+    birddog: MAT + '<circle class="h" cx="50" cy="39" r="8"/>' +
+      '<path class="b" d="M60 56 Q86 53 112 56"/><path class="b" d="M62 57 L62 87"/><path class="b" d="M58 55 L20 45"/>' +
+      '<path class="b" d="M112 56 L112 87 L140 87"/><path class="b" d="M112 56 L170 51"/>',
+    deadbug: MAT + '<circle class="h" cx="28" cy="78" r="8"/>' +
+      '<path class="b" d="M40 84 L104 84"/><path class="b" d="M58 84 L58 42"/><path class="b" d="M56 84 L22 62"/>' +
+      '<path class="b" d="M104 84 L104 52 L132 52"/><path class="b" d="M104 84 L172 72"/>',
+    sideplank: MAT + '<circle class="h" cx="33" cy="37" r="8"/>' +
+      '<path class="b" d="M44 50 Q110 66 176 87"/><path class="b" d="M44 50 L44 87 L70 87"/><path class="b" d="M60 54 L82 70"/>'
+  };
+
+  // ---------- routine (routine.js) ----------
+  var R = window.Routine, EX = R.EX;
+  var SPEED = Number(new URLSearchParams(location.search).get("speed")) || 1;
+  var STEPS = R.buildSteps();
+  var TOTAL = STEPS.reduce(function (a, s) { return a + s.dur; }, 0);
+
+  // ---------- helpers ----------
+  var $ = function (id) { return document.getElementById(id); };
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function fmt(sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ":" + pad(sec % 60); }
+  function show(id) {
+    ["start", "session", "done"].forEach(function (s) { $(s).hidden = s !== id; });
+  }
+
+  // ---------- week dots ----------
+  function loadDays() { try { return JSON.parse(localStorage.getItem("mb-days") || "[]"); } catch (e) { return []; } }
+  function markToday() {
+    var days = loadDays(), k = R.dayKey(new Date());
+    if (days.indexOf(k) < 0) days.push(k);
+    days = days.slice(-60);
+    try { localStorage.setItem("mb-days", JSON.stringify(days)); } catch (e) {}
+  }
+  function renderWeek(el) {
+    el.innerHTML = R.weekDays(loadDays(), new Date()).map(function (d) {
+      return '<div class="day' + (d.done ? " on" : "") + (d.today ? " today" : "") + '"><i></i>' + d.letter + "</div>";
+    }).join("");
+  }
+
+  // ---------- sound (synthesised singing bowl) ----------
+  var ctx = null, master = null;
+  function initAudio() {
+    if (ctx) { if (ctx.state === "suspended") ctx.resume(); return; }
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    ctx = new AC();
+    master = ctx.createGain(); master.gain.value = 0.5; master.connect(ctx.destination);
+    // a silent blip inside the tap unlocks audio on iOS
+    var o = ctx.createOscillator(), g = ctx.createGain(); g.gain.value = 0;
+    o.connect(g); g.connect(master); o.start(); o.stop(ctx.currentTime + 0.05);
+  }
+  function tone(freqs, gains, decay, delay) {
+    if (!ctx) return;
+    var t = ctx.currentTime + (delay || 0);
+    freqs.forEach(function (f, i) {
+      [0, 1.3].forEach(function (detune) {
+        var o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "sine"; o.frequency.value = f + detune * (i + 1);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(gains[i] / 2, t + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + decay / (1 + i * 0.35));
+        o.connect(g); g.connect(master); o.start(t); o.stop(t + decay + 0.1);
+      });
+    });
+  }
+  var sound = {
+    bowl: function (d) { tone([220, 220 * 2.76, 220 * 5.4, 220 * 8.9], [0.42, 0.22, 0.09, 0.04], 7, d); },
+    chime: function () { tone([880, 880 * 2.4], [0.16, 0.06], 2.2); },
+    go: function () { tone([440, 440 * 2], [0.12, 0.04], 1.4); },
+    finish: function () { sound.bowl(0); sound.bowl(2.6); }
+  };
+
+  // ---------- keep the screen awake ----------
+  var SILENCE = "data:video/mp4;base64,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";
+  var video = null, lock = null;
+  function wakeOn() {
+    if ("wakeLock" in navigator) {
+      navigator.wakeLock.request("screen").then(function (l) { lock = l; }).catch(function () {});
+    }
+    // fallback for Home Screen apps on iPadOS 16, where wake lock silently fails
+    if (!video) {
+      video = document.createElement("video");
+      video.setAttribute("playsinline", ""); video.setAttribute("muted", "");
+      video.muted = true; video.loop = true; video.src = SILENCE;
+      video.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:.01;pointer-events:none";
+      video.addEventListener("timeupdate", function () { if (video.currentTime > 0.5) video.currentTime = Math.random() * 0.4; });
+      document.body.appendChild(video);
+    }
+    var p = video.play(); if (p && p.catch) p.catch(function () {});
+  }
+  function wakeOff() {
+    if (lock) { lock.release().catch(function () {}); lock = null; }
+    if (video) video.pause();
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && running && !paused) wakeOn();
+  });
+
+  // ---------- session engine ----------
+  var running = false, paused = false, idx = 0, stepStart = 0, clockBase = 0, pausedAt = 0, pausedTotal = 0, timer = 0;
+  var lastBig = "", lastMeta = "";
+  function clock() { return (performance.now() - clockBase - pausedTotal) * SPEED; }
+
+  function renderDots() {
+    var cur = STEPS[idx] ? STEPS[idx].ex : EX.length, html = "";
+    for (var i = 0; i < EX.length; i++) html += '<i class="' + (i < cur ? "done" : i === cur ? "now" : "") + '"></i>';
+    $("dots").innerHTML = html;
+  }
+
+  function enterStep() {
+    var s = STEPS[idx], ex = EX[s.ex];
+    $("figure-inner").innerHTML = FIG[ex.id];
+    var stage = $("session");
+    stage.classList.toggle("working", s.t === "work");
+    stage.classList.toggle("resting", s.t !== "work");
+    $("breath").style.opacity = s.t === "work" && ex.reps ? "1" : "0";
+    $("breath").style.transform = "scale(.7)";
+    if (s.t === "next") {
+      $("eyebrow").textContent = "Up next · " + (s.ex + 1) + " of " + EX.length + " · " + ex.where;
+      $("cue").textContent = ex.setup;
+    } else if (s.t === "work") {
+      $("eyebrow").textContent = (s.ex + 1) + " of " + EX.length + " · " + ex.where;
+      $("cue").textContent = ex.cue;
+    } else if (s.t === "rest") {
+      $("eyebrow").textContent = "Rest";
+      $("cue").textContent = "Breathe slowly. Shake out your arms and legs.";
+    } else {
+      $("eyebrow").textContent = "Switch sides";
+      $("cue").textContent = "Take your time getting into position.";
+    }
+    $("name").textContent = ex.name;
+    lastBig = lastMeta = null;
+    renderDots();
+  }
+
+  function frame() {
+    if (!running) return;
+    if (paused) return;
+    var s = STEPS[idx], ex = EX[s.ex];
+    var el = (clock() - stepStart) / 1000;
+    if (el >= s.dur) { advance(true); return; }
+    var p = el / s.dur, big = "", meta = "";
+    $("ring").style.strokeDashoffset = (295.31 * (1 - p)).toFixed(2);
+
+    if (s.t === "next") {
+      big = "Starting in " + Math.ceil(s.dur - el);
+    } else if (s.t === "rest") {
+      big = fmt(s.dur - el); meta = s.set;
+    } else if (s.t === "switch") {
+      big = "Other side in " + Math.ceil(s.dur - el); meta = s.set;
+    } else if (ex.hold) {
+      big = fmt(s.dur - el);
+      meta = [s.set, s.side].filter(Boolean).join(" · ");
+    } else {
+      var r = R.repState(ex, el);
+      $("breath").style.transform = "scale(" + r.scale.toFixed(3) + ")";
+      big = r.label;
+      meta = [s.set, r.count].filter(Boolean).join(" · ");
+    }
+    if (big !== lastBig) { $("big").textContent = big; lastBig = big; }
+    if (meta !== lastMeta) { $("meta").textContent = meta; lastMeta = meta; }
+  }
+
+  function advance(natural) {
+    var prev = STEPS[idx];
+    idx++;
+    var next = STEPS[idx];
+    if (!next) { if (natural) sound.finish(); finish(); return; }
+    if (natural) {
+      if (prev.t === "work" && next.t === "next") sound.bowl(0);
+      else if (prev.t === "work") sound.chime();
+    }
+    if (next.t === "work") sound.go();
+    stepStart = clock();
+    enterStep();
+  }
+
+  function start() {
+    initAudio();
+    wakeOn();
+    idx = 0; pausedTotal = 0; paused = false; running = true;
+    clockBase = performance.now(); stepStart = 0;
+    $("pause").hidden = true;
+    show("session");
+    enterStep();
+    clearInterval(timer); timer = setInterval(frame, 50);
+  }
+  function stop() { running = false; clearInterval(timer); wakeOff(); }
+  function finish() {
+    stop(); markToday();
+    renderWeek($("week-done")); show("done");
+  }
+  function goHome() { stop(); renderStart(); show("start"); }
+
+  function setPaused(v) {
+    if (v === paused) return;
+    paused = v;
+    if (v) { pausedAt = performance.now(); }
+    else { pausedTotal += performance.now() - pausedAt; initAudio(); wakeOn(); }
+    $("pause").hidden = !v;
+  }
+
+  // ---------- wiring ----------
+  $("begin").addEventListener("click", start);
+  $("session").addEventListener("click", function () { if (running) setPaused(!paused); });
+  $("skip").addEventListener("click", function (e) { e.stopPropagation(); if (paused) setPaused(false); advance(false); });
+  $("end").addEventListener("click", function (e) { e.stopPropagation(); goHome(); });
+  $("home").addEventListener("click", goHome);
+
+  function renderStart() {
+    var h = new Date().getHours();
+    $("greet").textContent = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+    $("summary").textContent = Math.round(TOTAL / 60) + " min · " + EX.length + " exercises · in bed, then on the mat";
+    renderWeek($("week-start"));
+  }
+  renderStart();
+
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  }
+})();
+</script>
+</body>
+</html>
