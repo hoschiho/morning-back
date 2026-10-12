@@ -1,5 +1,5 @@
 // Serve from cache so the app opens offline; refresh the cache in the background.
-const CACHE = "morning-back-v1";
+const CACHE = "morning-back-v2";
 const FILES = ["./", "index.html", "manifest.webmanifest", "routine.js", "icon-180.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {

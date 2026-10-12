@@ -95,3 +95,14 @@ test("week crosses a month boundary", () => {
 test("just after midnight still counts as the new local day", () => {
   assert.equal(dayKey(new Date(2026, 10, 2, 0, 30)), "2026-11-02");
 });
+
+test("glute bridge figure: hips down at rep start, fully up during the hold, back down by the end", () => {
+  const bridge = ex("Glute bridge"); // lift 2 s, hold 2 s, lower 2 s
+  assert.equal(repState(bridge, 0).move, 0);
+  assert.equal(repState(bridge, 3).move, 1);
+  assert.ok(repState(bridge, 5.9).move < 0.01);
+});
+
+test("alternating exercises report which side is moving", () => {
+  assert.deepEqual([0, 6, 12].map((t) => repState(ex("Bird dog"), t).side), [0, 1, 0]);
+});

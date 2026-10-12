@@ -90,7 +90,9 @@
     var count = ex.alt
       ? "Round " + (Math.floor(rep / 2) + 1) + " of " + ex.reps / 2 + " · " + ex.alt[rep % 2]
       : "Rep " + (rep + 1) + " of " + ex.reps;
-    return { rep: rep + 1, label: phase.label, scale: scale, count: count };
+    // move: how far the figure is into the active pose (0 = resting, 1 = fully lifted/reached). Breathing out drives the effort.
+    var move = (CIRCLE_HI - scale) / (CIRCLE_HI - CIRCLE_LO);
+    return { rep: rep + 1, label: phase.label, scale: scale, count: count, move: move, side: rep % 2 };
   }
 
   function pad(n) { return (n < 10 ? "0" : "") + n; }

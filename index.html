@@ -53,7 +53,6 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
 
 /* ---------- start & done ---------- */
 .center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3.2vh; text-align: center; }
-.sun { width: 84px; height: 42px; }
 .greet { font-size: clamp(40px, 6.4vw, 76px); font-weight: 600; letter-spacing: -.01em; margin: 0; line-height: 1.05; }
 .sub { font-size: clamp(17px, 1.8vw, 22px); color: var(--cream-2); margin: 0; }
 .begin {
@@ -92,9 +91,25 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
 .figure .pil { fill: var(--cream); opacity: .22; }
 .figure .m { stroke: var(--peach); stroke-width: 3; fill: none; stroke-linecap: round; opacity: .9; }
 .figure .mh { fill: var(--peach); opacity: .9; }
-.figure-inner { transform-origin: 50% 80%; }
-.working .figure-inner { animation: float 6s ease-in-out infinite; }
-@keyframes float { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+.figure .far { opacity: .45; }
+.figure .eye { stroke: var(--night); stroke-width: 1.3; fill: none; stroke-linecap: round; }
+.figure .blush { fill: var(--peach); opacity: .85; }
+.specks { pointer-events: none; opacity: 0; transition: opacity 1.2s; }
+.working .specks { opacity: 1; }
+.specks i { position: absolute; bottom: 22%; width: 5px; height: 5px; border-radius: 50%; background: var(--peach); opacity: 0; animation: speck 9s linear infinite; }
+.specks i:nth-child(1) { left: 22%; animation-delay: 0s; }
+.specks i:nth-child(2) { left: 38%; animation-delay: 1.6s; width: 3px; height: 3px; }
+.specks i:nth-child(3) { left: 52%; animation-delay: 3.1s; }
+.specks i:nth-child(4) { left: 64%; animation-delay: 4.7s; width: 4px; height: 4px; }
+.specks i:nth-child(5) { left: 76%; animation-delay: 6.2s; width: 3px; height: 3px; }
+.specks i:nth-child(6) { left: 30%; animation-delay: 7.6s; width: 4px; height: 4px; }
+@keyframes speck { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: .55; } 50% { transform: translate(8px, -110px); } 85% { opacity: .3; } 100% { transform: translate(-4px, -220px); opacity: 0; } }
+.sun { width: 120px; height: 60px; overflow: visible; }
+.rise { animation: rise 2.6s cubic-bezier(.2, .7, .2, 1) .3s both; }
+@keyframes rise { from { transform: translateY(22px); } to { transform: translateY(0); } }
+.twinkle circle { fill: var(--cream); animation: twinkle 2.4s ease-in-out infinite; }
+.twinkle circle:nth-child(2) { animation-delay: .6s; } .twinkle circle:nth-child(3) { animation-delay: 1.2s; } .twinkle circle:nth-child(4) { animation-delay: 1.8s; }
+@keyframes twinkle { 0%, 100% { opacity: .1; } 50% { opacity: .9; } }
 .resting .figure { opacity: .45; }
 
 .text { display: flex; flex-direction: column; gap: 2.2vh; min-width: 0; max-width: 34em; }
@@ -130,7 +145,7 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
   .hint { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .begin, .working .figure-inner { animation: none; }
+  .begin, .specks i, .rise, .twinkle circle { animation: none; }
 }
 </style>
 </head>
@@ -140,7 +155,8 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
   <div class="center">
     <svg class="sun" viewBox="0 0 84 42" aria-hidden="true">
       <path d="M8 40 A34 34 0 0 1 76 40" fill="none" stroke="#eeb090" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M22 40 A20 20 0 0 1 62 40" fill="rgba(238,176,144,.35)"/>
+      <path d="M22 40 A20 20 0 0 1 62 40" fill="rgba(238,176,144,.45)"/>
+      <path d="M33 33 q3 2.4 6 0 M45 33 q3 2.4 6 0" fill="none" stroke="#1d1630" stroke-width="1.4" stroke-linecap="round"/>
       <line x1="2" y1="40.5" x2="82" y2="40.5" stroke="rgba(246,234,216,.35)" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
     <h1 class="greet" id="greet">Good morning</h1>
@@ -159,7 +175,8 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
         <circle class="ring-fg" id="ring" cx="50" cy="50" r="47" fill="none" stroke-width="1.6" stroke-linecap="round"
                 transform="rotate(-90 50 50)" stroke-dasharray="295.31" stroke-dashoffset="295.31"/>
       </svg>
-      <div class="figure"><svg viewBox="0 0 200 110" id="figure"><g class="figure-inner" id="figure-inner"></g></svg></div>
+      <div class="specks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="figure"><svg viewBox="0 0 200 110" id="figure"><rect class="mat" x="8" y="89" width="184" height="6" rx="3"/><g id="figure-body"></g></svg></div>
     </div>
     <div class="text">
       <div class="eyebrow" id="eyebrow"></div>
@@ -187,7 +204,13 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
   <div class="center">
     <svg class="sun" viewBox="0 0 84 42" aria-hidden="true">
       <path d="M8 40 A34 34 0 0 1 76 40" fill="none" stroke="#eeb090" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M22 40 A20 20 0 0 1 62 40" fill="rgba(238,176,144,.6)"/>
+      <clipPath id="horizon"><rect x="0" y="-20" width="84" height="60.5"/></clipPath>
+      <g clip-path="url(#horizon)"><g class="rise">
+        <path d="M22 40 A20 20 0 0 1 62 40" fill="#eeb090"/>
+        <path d="M33 34 q3 -3 6 0 M45 34 q3 -3 6 0" fill="none" stroke="#1d1630" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="31" cy="37" r="1.8" fill="#e58a7a"/><circle cx="53" cy="37" r="1.8" fill="#e58a7a"/>
+      </g></g>
+      <g class="twinkle"><circle cx="12" cy="14" r="1.6"/><circle cx="74" cy="8" r="1.3"/><circle cx="66" cy="22" r="1"/><circle cx="20" cy="2" r="1"/></g>
       <line x1="2" y1="40.5" x2="82" y2="40.5" stroke="rgba(246,234,216,.35)" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
     <h1 class="greet">Well done</h1>
@@ -201,39 +224,115 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
 <script>
 (function () {
   "use strict";
+  var $ = function (id) { return document.getElementById(id); };
 
   // ---------- figures (viewBox 0 0 200 110, mat at y≈90) ----------
-  var MAT = '<rect class="mat" x="8" y="89" width="184" height="6" rx="3"/>';
+  // Each figure is a set of joints in a resting pose (a) and an active pose (b); the drawing blends between them.
+  function mix(a, b, m) {
+    var o = {};
+    for (var k in a) o[k] = b && b[k] ? [a[k][0] + (b[k][0] - a[k][0]) * m, a[k][1] + (b[k][1] - a[k][1]) * m] : a[k];
+    return o;
+  }
+  function pt(p) { return p[0].toFixed(1) + " " + p[1].toFixed(1); }
+  function line() {
+    var d = "M" + pt(arguments[0]);
+    for (var i = 1; i < arguments.length; i++) d += " L" + pt(arguments[i]);
+    return d;
+  }
+  function curve(from, ctrl, to) { return "M" + pt(from) + " Q" + pt(ctrl) + " " + pt(to); }
+  function limb(d, far) { return '<path class="b' + (far ? " far" : "") + '" d="' + d + '"/>'; }
+  function pillow(x, y, w, h) { return '<rect class="pil" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + h / 2 + '"/>'; }
+  // A sleepy, content face: closed smiling eyes and a blush. look: degrees the face points (0 = right, -90 = up), or "front".
+  // Only the features' positions turn with the head; the eye arc stays level so it always reads as a closed eye.
+  function head(p, r, look, flip) {
+    var html = '<circle class="h" cx="' + p[0] + '" cy="' + p[1] + '" r="' + r + '"/>';
+    function at(x, y) {
+      if (flip) x = -x;
+      var a = (flip ? -look : look) * Math.PI / 180;
+      return [p[0] + x * Math.cos(a) - y * Math.sin(a), p[1] + x * Math.sin(a) + y * Math.cos(a)];
+    }
+    function eye(c) { return '<path class="eye" d="M' + pt([c[0] - 1.7, c[1]]) + ' q1.7 1.5 3.4 0"/>'; }
+    function blush(c, size) { return '<circle class="blush" cx="' + c[0].toFixed(1) + '" cy="' + c[1].toFixed(1) + '" r="' + size + '"/>'; }
+    if (look === "front") return html + eye([p[0] - 3, p[1] - 1]) + eye([p[0] + 3, p[1] - 1]) + blush([p[0] - 4.4, p[1] + 2.6], 1.5) + blush([p[0] + 4.4, p[1] + 2.6], 1.5);
+    return html + eye(at(3.6, -2)) + blush(at(3.4, 3), 1.7);
+  }
+
+  // motion: "reps" follows the breathing pacer, "rock" rolls gently, "sway" eases into the active pose and back.
   var FIG = {
-    knees: MAT + '<rect class="pil" x="14" y="79" width="34" height="10" rx="5"/>' +
-      '<circle class="h" cx="34" cy="72" r="9"/>' +
-      '<path class="b" d="M46 80 Q78 84 108 83"/><path class="b" d="M108 83 L94 52 L122 44"/><path class="b" d="M60 81 L92 56"/>',
-    tilt: MAT + '<rect class="pil" x="12" y="79" width="32" height="10" rx="5"/>' +
-      '<circle class="h" cx="30" cy="72" r="9"/>' +
-      '<path class="b" d="M42 80 Q76 85 110 83 L136 55 L156 87"/><path class="b" d="M58 81 L96 86"/>' +
-      '<path class="m" d="M78 58 v14"/><path class="mh" d="M72 70 h12 l-6 9z"/>',
-    drops: MAT + '<rect class="pil" x="12" y="79" width="32" height="10" rx="5"/>' +
-      '<circle class="h" cx="30" cy="72" r="9"/>' +
-      '<path class="b" d="M42 80 Q76 85 110 83 L142 62 L160 87"/><path class="b" d="M58 81 L96 86"/>' +
-      '<path class="m" d="M126 38 q22 -8 34 12"/><path class="mh" d="M156 52 l10 2 l-4 -11z"/>' +
-      '<path class="m" d="M126 38 q-14 4 -18 18"/><path class="mh" d="M102 54 l6 10 l6 -8z"/>',
-    hipflexor: MAT + '<rect class="pil" x="70" y="82" width="24" height="7" rx="3.5"/>' +
-      '<circle class="h" cx="96" cy="14" r="9"/>' +
-      '<path class="b" d="M96 26 Q99 42 98 56"/><path class="b" d="M98 56 L80 84 L50 86"/>' +
-      '<path class="b" d="M98 56 L134 58 L136 86 L148 86"/><path class="b" d="M96 33 L89 47 L98 54"/>' +
-      '<path class="m" d="M72 50 q4 -10 12 -14"/><path class="mh" d="M82 32 l8 2 l-6 7z"/>',
-    bridge: MAT + '<circle class="h" cx="28" cy="79" r="8"/>' +
-      '<path class="b" d="M40 85 Q70 66 100 57 L130 46 L140 87"/><path class="b" d="M46 86 L90 87"/>' +
-      '<path class="m" d="M100 76 v-12"/><path class="mh" d="M94 66 h12 l-6 -9z"/>',
-    birddog: MAT + '<circle class="h" cx="50" cy="39" r="8"/>' +
-      '<path class="b" d="M60 56 Q86 53 112 56"/><path class="b" d="M62 57 L62 87"/><path class="b" d="M58 55 L20 45"/>' +
-      '<path class="b" d="M112 56 L112 87 L140 87"/><path class="b" d="M112 56 L170 51"/>',
-    deadbug: MAT + '<circle class="h" cx="28" cy="78" r="8"/>' +
-      '<path class="b" d="M40 84 L104 84"/><path class="b" d="M58 84 L58 42"/><path class="b" d="M56 84 L22 62"/>' +
-      '<path class="b" d="M104 84 L104 52 L132 52"/><path class="b" d="M104 84 L172 72"/>',
-    sideplank: MAT + '<circle class="h" cx="33" cy="37" r="8"/>' +
-      '<path class="b" d="M44 50 Q110 66 176 87"/><path class="b" d="M44 50 L44 87 L70 87"/><path class="b" d="M60 54 L82 70"/>'
+    knees: { motion: "rock",
+      a: { hd: [34, 72], sh: [46, 80], hip: [108, 83], kn: [94, 52], ft: [122, 44], el: [60, 81], hand: [92, 56] },
+      draw: function (j) {
+        return pillow(14, 79, 34, 10) + limb(curve(j.sh, [78, 84], j.hip)) + limb(line(j.hip, j.kn, j.ft)) +
+          limb(line(j.el, j.hand)) + head(j.hd, 9, -90);
+      } },
+    tilt: { motion: "reps",
+      a: { hd: [30, 72], sh: [42, 80], c1: [72, 82], c2: [92, 60], hip: [110, 83], kn: [136, 55], ft: [156, 87] },
+      b: { c2: [94, 87], hip: [110, 84], kn: [138, 56] },
+      draw: function (j) {
+        return pillow(12, 79, 32, 10) + limb("M" + pt(j.sh) + " C" + pt(j.c1) + " " + pt(j.c2) + " " + pt(j.hip)) +
+          limb(line(j.hip, j.kn, j.ft)) + limb(line([52, 85], [84, 88])) + head(j.hd, 9, -90);
+      } },
+    drops: { motion: "reps",
+      a: { hd: [30, 72], hip: [110, 83], kn: [136, 55], ft: [156, 87], kn2: [133, 56] },
+      b: { kn: [150, 71], kn2: [140, 62] },
+      draw: function (j) {
+        return pillow(12, 79, 32, 10) + limb(line(j.hip, j.kn2, j.ft), true) + limb(curve([42, 80], [76, 85], j.hip)) +
+          limb(line(j.hip, j.kn, j.ft)) + limb(line([58, 81], [96, 86])) + head(j.hd, 9, -90);
+      } },
+    hipflexor: { motion: "sway",
+      a: { hd: [96, 14], nk: [96, 26], hip: [98, 56], fk: [134, 58], el: [89, 47], hand: [98, 54] },
+      b: { hd: [101, 15], nk: [101, 27], hip: [104, 58], fk: [137, 59], el: [94, 48], hand: [104, 56] },
+      draw: function (j) {
+        return pillow(70, 82, 24, 7) + limb(curve(j.nk, [j.nk[0] + 3, 42], j.hip)) + limb(line(j.hip, [80, 84], [50, 86])) +
+          limb(line(j.hip, j.fk, [136, 86], [148, 86])) + limb(line([j.nk[0], j.nk[1] + 7], j.el, j.hand)) + head(j.hd, 9, 0);
+      } },
+    bridge: { motion: "reps",
+      a: { sh: [40, 85], c: [67, 86], hip: [94, 84], kn: [126, 56] },
+      b: { c: [70, 67], hip: [100, 57], kn: [131, 47] },
+      draw: function (j) {
+        return limb(curve(j.sh, j.c, j.hip)) + limb(line(j.hip, j.kn, [140, 87])) + limb(line([46, 86], [90, 87])) +
+          head([28, 79], 8, -90);
+      } },
+    birddog: { motion: "reps",
+      a: { hand: [64, 86], kn: [113, 86], ft: [140, 86] },
+      b: { hand: [20, 45], kn: [141, 53], ft: [170, 51] },
+      draw: function (j) {
+        return limb(line([60, 56], [62, 87]), true) + limb(line([112, 56], [112, 87], [140, 87]), true) +
+          limb(curve([60, 56], [86, 53], [112, 56])) + limb(line([60, 56], j.hand)) + limb(line([112, 56], j.kn, j.ft)) +
+          head([50, 39], 8, 20, true);
+      } },
+    deadbug: { motion: "reps",
+      a: { hand: [58, 42], kn: [104, 52], ft: [132, 52] },
+      b: { hand: [24, 56], kn: [138, 78], ft: [172, 72] },
+      draw: function (j) {
+        return limb(line([58, 84], [58, 42]), true) + limb(line([104, 84], [104, 52], [132, 52]), true) +
+          limb(line([40, 84], [104, 84])) + limb(line([58, 84], j.hand)) + limb(line([104, 84], j.kn, j.ft)) +
+          head([28, 78], 8, -90);
+      } },
+    sideplank: { motion: "sway",
+      a: { c: [110, 66], hand: [82, 70] },
+      b: { c: [110, 60], hand: [82, 66] },
+      draw: function (j) {
+        return limb(curve([44, 50], j.c, [176, 87])) + limb(line([44, 50], [44, 87], [70, 87])) + limb(line([60, 54], j.hand)) +
+          head([33, 37], 8, "front");
+      } }
   };
+
+  var lastPose = "";
+  function drawFigure(id, m, tilt) {
+    var key = id + m.toFixed(3) + tilt.toFixed(2);
+    if (key === lastPose) return;
+    lastPose = key;
+    var f = FIG[id], body = $("figure-body");
+    body.innerHTML = f.draw(mix(f.a, f.b, m));
+    body.setAttribute("transform", tilt ? "rotate(" + tilt.toFixed(2) + " 78 86)" : "");
+  }
+  // Idle motion for timed holds, from seconds into the hold.
+  function holdPose(motion, t) {
+    if (motion === "rock") return { m: 0, tilt: 4 * Math.sin(2 * Math.PI * t / 5) };
+    if (motion === "sway") return { m: (1 - Math.cos(2 * Math.PI * t / 6)) / 2, tilt: 0 };
+    return { m: 0, tilt: 0 };
+  }
 
   // ---------- routine (routine.js) ----------
   var R = window.Routine, EX = R.EX;
@@ -245,7 +344,6 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
   var RING_LENGTH = 295.31; // 2π × r=47, matches the ring's stroke-dasharray
 
   // ---------- helpers ----------
-  var $ = function (id) { return document.getElementById(id); };
   function fmt(sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ":" + R.pad(sec % 60); }
   function show(id) {
     ["start", "session", "done"].forEach(function (s) { $(s).hidden = s !== id; });
@@ -337,7 +435,7 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
 
   function enterStep() {
     var s = STEPS[idx], ex = EX[s.ex];
-    $("figure-inner").innerHTML = FIG[ex.id];
+    drawFigure(ex.id, 0, 0);
     var stage = $("session");
     stage.classList.toggle("working", s.t === "work");
     stage.classList.toggle("resting", s.t !== "work");
@@ -377,11 +475,14 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
     } else if (s.t === "switch") {
       big = "Other side in " + Math.ceil(s.dur - el); meta = s.set;
     } else if (ex.hold) {
+      var hp = holdPose(FIG[ex.id].motion, el);
+      drawFigure(ex.id, hp.m, hp.tilt);
       big = fmt(s.dur - el);
       meta = [s.set, s.side].filter(Boolean).join(" · ");
     } else {
       var r = R.repState(ex, el);
       $("breath").style.transform = "scale(" + r.scale.toFixed(3) + ")";
+      drawFigure(ex.id, r.move, 0);
       big = r.label;
       meta = [s.set, r.count].filter(Boolean).join(" · ");
     }
@@ -411,7 +512,7 @@ button:focus-visible { outline: 2px solid var(--peach); outline-offset: 4px; bor
     $("pause").hidden = true;
     show("session");
     enterStep();
-    clearInterval(timer); timer = setInterval(frame, 50);
+    clearInterval(timer); timer = setInterval(frame, 40);
   }
   function stop() { running = false; clearInterval(timer); wakeOff(); }
   function finish() {
